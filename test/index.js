@@ -242,6 +242,15 @@ var socket1, socket2, socket3;
           done();
         });
       });
+
+      it('makes a given socket disconnect', function(done){
+        client1.on('disconnect', function(err){
+          expect(err).to.be('io server disconnect');
+          done();
+        });
+
+        namespace2.adapter.remoteDisconnect(socket1.id, false);
+      });
     });
   });
 });
@@ -295,10 +304,16 @@ function init(options){
   };
 }
 
+function noop(){}
+
 function cleanup(done){
   namespace1.server.close();
   namespace2.server.close();
   namespace3.server.close();
+  // handle 'Connection is closed' errors
+  namespace1.adapter.on('error', noop);
+  namespace2.adapter.on('error', noop);
+  namespace3.adapter.on('error', noop);
   namespace1.adapter.subClient.quit();
   namespace2.adapter.subClient.quit();
   namespace3.adapter.subClient.quit();
